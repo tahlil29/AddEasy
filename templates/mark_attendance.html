@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 600px; margin: 2rem auto;">
+    <h2>Mark Your Attendance</h2>
+    <p style="margin-bottom: 2rem;">Enter the 6-character session code provided by your teacher.</p>
+    
+    <form method="POST" action="{{ url_for('mark_attendance') }}">
+        <div class="form-group">
+            <label for="session_code">Session Code</label>
+            <input type="text" id="session_code" name="session_code" class="form-control" required placeholder="Enter code" style="text-transform: uppercase;">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Submit Attendance</button>
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline" style="margin-left: 1rem;">Back</a>
+    </form>
+</div>
+{% endblock %}

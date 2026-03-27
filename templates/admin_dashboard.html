@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h1>Admin Dashboard</h1>
+        <p>Manage teachers and students in the system</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <a href="{{ url_for('add_teacher') }}" class="btn btn-primary">+ Add Teacher</a>
+        <a href="{{ url_for('add_student') }}" class="btn btn-outline">+ Add Student</a>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="card glass-panel">
+        <h3>Total Teachers</h3>
+        <div style="font-size: 3rem; font-weight: 700; color: var(--info);">{{ teachers | length }}</div>
+    </div>
+    <div class="card glass-panel">
+        <h3>Total Students</h3>
+        <div style="font-size: 3rem; font-weight: 700; color: var(--success);">{{ students | length }}</div>
+    </div>
+</div>
+
+<h2 style="margin-top: 3rem;">Registered Teachers</h2>
+<div class="glass-panel" style="padding: 0; margin-bottom: 2rem;">
+    <table>
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>Name</th>
+                <th>ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in teachers %}
+            <tr>
+                <td>
+                    {% if t.avatar and t.avatar != 'default.png' %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ t.avatar) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--surface-border); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--text-secondary);">
+                            {{ t.name[0] | upper }}
+                        </div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ t.name }}</strong></td>
+                <td>{{ t.username }}</td>
+                <td><span class="badge badge-active">Active</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem;">No teachers registered yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Registered Students</h2>
+<div class="glass-panel" style="padding: 0;">
+    <table>
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>Name</th>
+                <th>ID / Roll No.</th>
+                <th>Course Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td>
+                    {% if s.avatar and s.avatar != 'default.png' %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ s.avatar) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--surface-border); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--text-secondary);">
+                            {{ s.name[0] | upper }}
+                        </div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>{{ s.username }}</td>
+                <td>{{ s.course }} ({{ s.year }})</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem;">No students registered yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

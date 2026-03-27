@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 600px; margin: 2rem auto;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        {% if current_user.avatar and current_user.avatar != 'default.png' %}
+            <img src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) }}" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-color);">
+        {% else %}
+            <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--surface-border); display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2rem; color: var(--text-secondary);">
+                {{ current_user.name[0] | upper }}
+            </div>
+        {% endif %}
+        <h2 style="margin-top: 1rem;">Profile Settings</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ current_user.name }}" required>
+        </div>
+
+        {% if current_user.role == 'student' %}
+        <div style="display: flex; gap: 1rem;">
+            <div class="form-group" style="flex: 1;">
+                <label for="course">Course/Class</label>
+                <input type="text" id="course" name="course" class="form-control" value="{{ current_user.course or '' }}">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="year">Year</label>
+                <input type="text" id="year" name="year" class="form-control" value="{{ current_user.year or '' }}">
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 1rem;">
+            <div class="form-group" style="flex: 1;">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" name="dob" class="form-control" value="{% if current_user.dob %}{{ current_user.dob }}{% endif %}">
+            </div>
+            
+            <div class="form-group" style="flex: 1;">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" class="form-control">
+                    <option value="" {% if not current_user.gender %}selected{% endif %}>Select</option>
+                    <option value="Male" {% if current_user.gender == 'Male' %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if current_user.gender == 'Female' %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if current_user.gender == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="avatar">Profile Avatar (Image)</label>
+            <input type="file" id="avatar" name="avatar" class="form-control" accept="image/*">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

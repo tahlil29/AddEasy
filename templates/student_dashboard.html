@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h1>Student Dashboard</h1>
+        <p>{{ current_user.course }} | Year: {{ current_user.year }}</p>
+    </div>
+    <a href="{{ url_for('mark_attendance') }}" class="btn btn-primary">Mark Attendance</a>
+</div>
+
+<div class="grid">
+    <div class="card glass-panel">
+        <h3>Classes Attended</h3>
+        <div style="font-size: 3rem; font-weight: 700; color: var(--success);">{{ total_attended }}</div>
+        <p>Total recorded attendances</p>
+    </div>
+
+    <div class="card glass-panel">
+        <h3>Recent Notices</h3>
+        {% if notices %}
+            <ul style="list-style: none; padding: 0;">
+            {% for n in notices %}
+                <li style="margin-bottom: 1rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 1rem;">
+                    <strong>{{ n.title }}</strong><br>
+                    <small style="color: var(--text-secondary);">By {{ n.author.name }} on {{ n.timestamp.strftime('%Y-%m-%d') }}</small>
+                    <p style="margin-top: 0.5rem;">{{ n.content }}</p>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No new notices.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));">
+    <div class="card glass-panel">
+        <h3>Subject-wise Attendance</h3>
+        {% if subjects_stats %}
+            <table style="margin-top: 0;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0.5rem;">Subject</th>
+                        <th style="padding: 0.5rem;">Attended</th>
+                        <th style="padding: 0.5rem;">Total</th>
+                        <th style="padding: 0.5rem;">%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subj, stats in subjects_stats.items() %}
+                    <tr>
+                        <td style="padding: 0.5rem;"><strong>{{ subj }}</strong></td>
+                        <td style="padding: 0.5rem; color: var(--success);">{{ stats.attended }}</td>
+                        <td style="padding: 0.5rem;">{{ stats.total }}</td>
+                        <td style="padding: 0.5rem;">
+                            {% if stats.total > 0 %}
+                                {{ (stats.attended / stats.total * 100) | round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="margin-top: 1rem;">No subject data available.</p>
+        {% endif %}
+    </div>
+
+    <div class="card glass-panel">
+        <h3>Monthly Attendance</h3>
+        {% if monthly_stats %}
+            <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+            {% for month, count in monthly_stats.items() %}
+                <li style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--surface-border);">
+                    <span style="font-weight: 500;">{{ month }}</span>
+                    <span style="color: var(--primary-color); font-weight: 700;">{{ count }} classes</span>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p style="margin-top: 1rem;">No monthly data available.</p>
+        {% endif %}
+    </div>
+</div>
+
+<h2 style="margin-top: 3rem;">Attendance History</h2>
+{% if records %}
+<div class="glass-panel" style="padding: 0;">
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Session Code</th>
+                <th>Time Marked</th>
+                <th>Teacher</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ r.session.subject }}</td>
+                <td>{{ r.session.session_code }}</td>
+                <td>{{ r.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ r.session.teacher.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="glass-panel" style="text-align: center; padding: 3rem;">
+    <p>No attendance records history found.</p>
+</div>
+{% endif %}
+{% endblock %}

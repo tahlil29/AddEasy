@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h2>Attendance Details</h2>
+        <p>Subject: <strong>{{ session.subject }}</strong></p>
+        <p>Date: {{ session.date.strftime('%Y-%m-%d %H:%M') }}</p>
+    </div>
+    
+    <div style="text-align: right;">
+        <p>Session Code</p>
+        <div class="code-display">{{ session.session_code }}</div>
+        {% if session.is_active %}
+        <span class="badge badge-active" style="margin-top: 0.5rem; display: inline-block;">Status: Live</span>
+        {% else %}
+        <span class="badge badge-inactive" style="margin-top: 0.5rem; display: inline-block;">Status: Ended</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="glass-panel" style="padding: 0;">
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Roll Number / ID</th>
+                <th>Course</th>
+                <th>Year</th>
+                <th>Time Marked</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ r.student.name }}</td>
+                <td>{{ r.student.username }}</td>
+                <td>{{ r.student.course }}</td>
+                <td>{{ r.student.year }}</td>
+                <td>{{ r.timestamp.strftime('%H:%M:%S') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem;">No students have marked attendance yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 2rem;">
+    <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 400px; margin: 4rem auto; text-align: center;">
+    <h2>Welcome Back 👋</h2>
+    <p style="margin-bottom: 2rem;">Sign in to your AttendEase account</p>
+
+    <form method="POST" action="{{ url_for('login') }}" style="text-align: left;">
+        <div class="form-group">
+            <label for="username">Username / ID</label>
+            <input type="text" id="username" name="username" class="form-control" required placeholder="e.g. teacher1">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+    </form>
+
+    <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-secondary);">
+
+    </div>
+</div>
+{% endblock %}
