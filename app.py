@@ -20,18 +20,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db.init_app(app)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# ----------------- CLI Commands -----------------
-@app.cli.command("init-db")
-def init_db():
-    db.drop_all()
+with app.app_context():
     db.create_all()
     
     # Create an Admin
@@ -68,7 +57,21 @@ def init_db():
         )
         db.session.add(student)
     db.session.commit()
-    print("Initialized the database and added dummy users.")
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# ----------------- CLI Commands -----------------
+@app.cli.command("init-db")
+def init_db():
+    db.drop_all()
+    db.create_all()
+    print("Dropped and created the database tables.")
 
 # ----------------- Routes -----------------
 
