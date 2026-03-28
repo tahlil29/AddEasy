@@ -455,5 +455,23 @@ tr:hover td {
         right: 0;
         bottom: 85px;
     }
+    
+    /* Fix page headers overflowing on mobile */
+    .container > div[style*="display: flex"] {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+    
+    .container > div[style*="display: flex"] > div:last-child {
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    /* Ensure buttons wrap */
+    .btn {
+        margin-bottom: 0.5rem;
+    }
 }
 
