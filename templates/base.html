@@ -67,7 +67,99 @@
                 // Toggle emoji icon
                 themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
             });
+
+            // Chatbot Logic
+            const chatBtn = document.getElementById('chatbot-toggle');
+            const chatWindow = document.getElementById('chatbot-window');
+            const chatClose = document.getElementById('chatbot-close');
+            const chatMessages = document.getElementById('chatbot-messages');
+            const chatInput = document.getElementById('chatbot-input');
+            const chatSendBtn = document.getElementById('chatbot-send-btn');
+
+            if (chatBtn && chatWindow) {
+                chatBtn.addEventListener('click', () => {
+                    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+                });
+
+                chatClose.addEventListener('click', () => {
+                    chatWindow.style.display = 'none';
+                });
+
+                function addMessage(text, sender) {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `chat-msg ${sender}`;
+                    msgDiv.textContent = text;
+                    chatMessages.appendChild(msgDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                function getBotResponse(message) {
+                    addMessage('...', 'bot'); // typing indicator
+                    const typingIndicator = chatMessages.lastChild;
+
+                    fetch('{{ url_for("chat_api") if current_user.is_authenticated else "/login" }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: message })
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Not authenticated');
+                        return response.json();
+                    })
+                    .then(data => {
+                        chatMessages.removeChild(typingIndicator);
+                        addMessage(data.reply, 'bot');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        chatMessages.removeChild(typingIndicator);
+                        addMessage("Please log in to use the chat bot.", 'bot');
+                    });
+                }
+
+                function handleSend() {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        addMessage(message, 'user');
+                        chatInput.value = '';
+                        getBotResponse(message);
+                    }
+                }
+
+                chatSendBtn.addEventListener('click', handleSend);
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleSend();
+                });
+            }
         });
     </script>
+
+    {% if current_user.is_authenticated %}
+    <div class="chatbot-widget">
+        <div class="chatbot-window" id="chatbot-window">
+            <div class="chatbot-header">
+                <span>AttendEase Bot</span>
+                <span class="chatbot-close" id="chatbot-close">&times;</span>
+            </div>
+            <div class="chatbot-messages" id="chatbot-messages">
+                <div class="chat-msg bot">Hi {{ current_user.name }}! I am your AttendEase assistant. How can I help you today?</div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatbot-input" placeholder="Type a message...">
+                <button id="chatbot-send-btn">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <button class="chatbot-btn" id="chatbot-toggle">
+            ☁️
+        </button>
+    </div>
+    {% endif %}
 </body>
 </html>

@@ -6,8 +6,13 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from dotenv import load_dotenv
+import google.generativeai as genai
 
 from models import db, User, AttendanceSession, AttendanceRecord, Notice
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key-super-secure'
@@ -381,6 +386,50 @@ def mark_attendance():
         return redirect(url_for('student_dashboard'))
         
     return render_template('mark_attendance.html')
+
+@app.route('/api/chat', methods=['POST'])
+@login_required
+def chat_api():
+    user_message = request.json.get('message', '').strip()
+    if not user_message:
+        return {'reply': "Please send a valid message."}
+        
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key or api_key == 'your_gemini_api_key_here':
+        return {'reply': "The admin needs to configure the Gemini API key in the .env file before the chatbot can function properly."}
+        
+    try:
+        # Provide system instructions to guide the AI
+        system_instruction = f"""
+        You are AttendEase Bot, an intelligent AI assistant integrated into the AttendEase smart attendance system.
+        The user interacting with you is {current_user.name}, who is a '{current_user.role}'.
+        
+        You are a highly capable, general-purpose AI. Feel free to answer ANY questions the user has, whether they are about programming, general knowledge, or everyday help. Be conversational, helpful, and friendly.
+        
+        Only when they specifically ask for help with the attendance application, use this context:
+        - Students can view dashboards, update their profile, and mark attendance using a 6-character code.
+        - Teachers can create sessions, post notices, view attendance records, and access their dashboard.
+        - Neither students nor teachers can add other users directly; but teachers can request admin to add them or admins can add them via their dashboard.
+        """
+        # Dynamically find an available model supported by this API key
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        if not available_models:
+            return {'reply': "Error: Your API key does not have access to any content generation models."}
+            
+        # Try to find a 'flash' or 'pro' model, otherwise fallback to the first available
+        best_model = available_models[0].replace('models/', '')
+        for m in available_models:
+            if 'flash' in m.lower():
+                best_model = m.replace('models/', '')
+                break
+        
+        model = genai.GenerativeModel(best_model, system_instruction=system_instruction)
+        response = model.generate_content(user_message)
+        
+        return {'reply': response.text}
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return {'reply': f"Error connecting to AI: {str(e)}"}
 
 if __name__ == '__main__':
     app.run(debug=True)
