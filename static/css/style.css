@@ -435,3 +435,25 @@ tr:hover td {
     background: var(--primary-hover);
 }
 
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        gap: 0.5rem;
+    }
+    
+    .chatbot-window {
+        width: calc(100vw - 40px);
+        max-width: 350px;
+        right: 0;
+        bottom: 85px;
+    }
+}
+
